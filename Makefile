@@ -1,10 +1,10 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -pedantic -Werror
 CURL_CFLAGS = $(shell curl-config --cflags)
 CURL_LIBS = $(shell curl-config --libs)
 
 SRC_DIR = ./src
-SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/results.c
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/tests.c
 CJSON_DIR = ./cJSON
 
 main: $(SRCS)
