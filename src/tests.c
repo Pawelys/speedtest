@@ -8,6 +8,94 @@
 
 #define UPLOAD_MAX_BYTES (8 * 1024 * 1024)
 
+
+void location_test(char* list_file, char *location)
+{
+    cJSON *root = NULL;
+    int count = open_json(list_file, &root);
+    struct result results[count]; // Rezultatu masyvas
+    int accepted_count = filtrate_loc(count, root, location, results);
+    free(root);
+
+    printf("Vietove: %s    Rasta serveriu: %d\n", location, accepted_count);
+    //Atrinktiem serveriam atliekami testai
+    //===========================================================================
+    //Geriausias serveris pagal parsiuntimo greiti
+    printf("==== Atliekamas parsiuntimo greicio testas =====\n");
+    struct result *best_download = malloc(sizeof(struct result));
+    best_download->down = 0;
+    best_download->host = "";
+    best_download->up = 0;
+    FILE *payload = NULL;
+    download_speed_test_all(results, accepted_count, best_download, &payload);
+    if (payload != NULL) {
+        upload_speed_test(best_download, payload);
+    }
+
+    //Geriausias serveris pagal siuntimo greiti
+    printf("==== Atliekamas siuntimo greicio testas =====\n");
+    struct result *best_upload = malloc(sizeof(struct result));
+    best_upload->down = 0;
+    best_upload->host = "";
+    best_upload->up = 0;
+    upload_speed_test_all(results, accepted_count, best_upload, payload);
+    if (payload != NULL && strcmp(best_upload->host, "") != 0) {
+        download_speed_test(best_upload, &payload);
+        fclose(payload);
+    }
+
+    print_result(*best_download, "Geriausias serveris pagal parsiuntimo greiti");
+    print_result(*best_upload, "Geriausias serveris pagal siuntimo greiti");
+
+    free(best_download);
+    free(best_upload);
+}
+
+int download_test(char *host)
+{
+    struct result server;
+    server.host = host;
+    server.down = 0;
+    server.up = 0;
+    //FILE *payload = NULL;
+    double Mbps = download_speed_test(&server, NULL);
+    if(Mbps == -1)
+    {
+        fprintf(stderr, "Klaida testuojant serverio greiti\n");
+        return -1;
+    }
+    print_result(server, "Parsiuntimo greicio rezultatai");
+    return 0;
+}
+
+int upload_test(char *host)
+{
+    struct result server;
+    server.host = host;
+    FILE *payload = NULL;
+    printf("Parsisiunciamas payload ||");
+    double down_mbps = download_speed_test(&server, &payload);
+    if(down_mbps <= 0 || payload == NULL)
+    {
+        fprintf(stderr, "Klaida: nepavyko parsiusti payload upload testui\n");
+        if (payload != NULL) {
+            fclose(payload);
+        }
+        return -1;
+    }
+    double Mbps = upload_speed_test(&server, payload);
+    fclose(payload);
+    if(Mbps == -1)
+    {
+        fprintf(stderr, "Klaida testuojant serverio greiti\n");
+        return -1;
+    }
+    print_result(server, "Siuntimo greicio rezultatai");
+
+    return 0;
+}
+
+
 void print_result(const struct result result, char* header)
 {
     printf("======================================\n");

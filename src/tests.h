@@ -20,4 +20,8 @@ double upload_speed_test(struct result *server, FILE *payload);
 static size_t read_callback(void *contents, size_t size, size_t nmemb, void *bufptr);
 int upload_speed_test_all(struct result *servers, int count, struct result *best, FILE *payload);
 
+void location_test(char* list_file, char *location);
+int download_test(char *host);
+int upload_test(char *host);
+
 #endif
