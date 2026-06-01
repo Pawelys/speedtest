@@ -20,6 +20,12 @@ int main(int argc, char **argv){
     find_user_loc(&user_country);
     printf("Naudotojo vietove: %s\n", user_country);
 
+    if(argc == 1){
+        location_test(list_file, user_country);
+        curl_global_cleanup();
+        return 0;
+    }
+
     int option;
     opterr = 0;
 
