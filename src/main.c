@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <curl/curl.h>
-#include "cJSON.h"
-#include <stdlib.h>
 #include "tests.h"
-#include <string.h>
 
 #define UPLOAD_MAX_BYTES (8 * 1024 * 1024)
 
@@ -49,7 +46,7 @@ int main(int argc, char **argv){
             return 0;
         }
     }
-    
+
     curl_global_cleanup();
 
     return 0;
